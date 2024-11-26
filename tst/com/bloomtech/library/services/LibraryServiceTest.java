@@ -225,9 +225,11 @@ public class LibraryServiceTest {
 
         when(checkableService.getByIsbn(checkable.getIsbn())).thenReturn(checkable);
         when(libraryRepository.findAll()).thenReturn(libraries);
-
+        System.out.println(" * * * * * * *  ");
+        System.out.println(checkable.getIsbn());
         List<LibraryAvailableCheckouts> libraryAvailableCheckouts = libraryService.getLibrariesWithAvailableCheckout(checkable.getIsbn());
-
+        System.out.println(" - - - - - - - - ");
+        System.out.println(libraryAvailableCheckouts.toString());
         assertEquals(2, libraryAvailableCheckouts.get(0).getAvailable());
         assertEquals("Brightmore Public Library", libraryAvailableCheckouts.get(0).getLibraryName());
         assertEquals(1, libraryAvailableCheckouts.get(1).getAvailable());

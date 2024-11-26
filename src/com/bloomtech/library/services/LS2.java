@@ -1,11 +1,9 @@
 package com.bloomtech.library.services;
 
-import com.bloomtech.library.exceptions.CheckableNotFoundException;
 import com.bloomtech.library.exceptions.LibraryNotFoundException;
 import com.bloomtech.library.exceptions.ResourceExistsException;
 import com.bloomtech.library.models.*;
 import com.bloomtech.library.models.checkableTypes.Checkable;
-import com.bloomtech.library.models.checkableTypes.Media;
 import com.bloomtech.library.repositories.LibraryRepository;
 import com.bloomtech.library.models.CheckableAmount;
 import com.bloomtech.library.views.LibraryAvailableCheckouts;
@@ -15,49 +13,51 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
-public class LibraryService {
-
+public class LS2 {
     @Autowired
     private LibraryRepository libraryRepository;
-
     @Autowired
     private CheckableService checkableService;
 
     public List<Library> getLibraries() {
-        return libraryRepository.findAll();
+        List<Library> libraries = new ArrayList<>();
+        libraries = libraryRepository.findAll();
+        return libraries;
     }
 
     public Library getLibraryByName(String name) {
         if (libraryRepository.findByName(name).isPresent()) {
-            return libraryRepository.findByName(name).get();
-        } else {
+            Library library = libraryRepository.findByName(name).get();
+            return library;
+        }
+        else {
             throw new LibraryNotFoundException("There is no library with that name");
         }
     }
 
+
     public void save(Library library) {
         List<Library> libraries = libraryRepository.findAll();
-        if (libraries.stream().anyMatch(p->p.getName().equals(library.getName()))) {
+        if (libraries.stream().filter(p->p.getName().equals(library.getName())).findFirst().isPresent()) {
             throw new ResourceExistsException("Library with name: " + library.getName() + " already exists!");
         }
         libraryRepository.save(library);
     }
 
     public CheckableAmount getCheckableAmount(String libraryName, String checkableIsbn) {
-        Library library = getLibraryByName(libraryName);
-
         Checkable checkable = checkableService.getByIsbn(checkableIsbn);
+        Library library = libraryRepository.findByName(libraryName).get();
+        List<CheckableAmount> checkableAmounts = library.getCheckables();
+        int amount = 0;
 
-        for (CheckableAmount checkableAmount : library.getCheckables()) {
-            if (Objects.equals(checkableAmount.getCheckable().getIsbn(), checkableIsbn)) {
-                return checkableAmount;
+        for (CheckableAmount checkableAmount:checkableAmounts) {
+            if (checkableAmount.getCheckable().equals(checkable)) {
+                amount = checkableAmount.getAmount();
             }
         }
-
-        return new CheckableAmount(checkable, 0);
+        return new CheckableAmount(checkable, amount);
     }
 
     public List<LibraryAvailableCheckouts> getLibrariesWithAvailableCheckout(String isbn) {
@@ -84,11 +84,9 @@ public class LibraryService {
         List<OverdueCheckout> overdueCheckouts = new ArrayList<>();
         Library library = libraryRepository.findByName(libraryName).get();
         Set<LibraryCard> libraryCards = library.getLibraryCards();
-
         for (LibraryCard libraryCard : libraryCards) {
             List<Checkout> checkouts = libraryCard.getCheckouts();
             Checkout checkoutDue;
-
             for (Checkout checkout : checkouts) {
                 if (checkout.getDueDate().isBefore(LocalDateTime.now())) {
                     checkoutDue = checkout;
@@ -96,7 +94,6 @@ public class LibraryService {
                 }
             }
         }
-
         return overdueCheckouts;
     }
 }

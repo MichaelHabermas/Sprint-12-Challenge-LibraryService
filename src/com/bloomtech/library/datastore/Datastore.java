@@ -17,10 +17,6 @@ public class Datastore {
     private final List<LibraryCard> libraryCards = new ArrayList<>();
     private final List<Checkable> checkables = new ArrayList<>();
 
-    public Datastore() {
-
-    }
-
     public List<Checkable> getCheckables() {
         return checkables;
     }

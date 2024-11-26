@@ -26,9 +26,8 @@ public class LibraryCardService {
     public void save(LibraryCard libraryCard) {
         List<LibraryCard> libraryCards = libraryCardRepository.findAll();
         if (libraryCards.stream()
-                .filter(lc -> lc.getPatron().getName().equals(libraryCard.getPatron().getName()) &&
-                lc.getLibrary().getName().equals(libraryCard.getLibrary().getName()))
-                .findFirst().isPresent()) {
+                .anyMatch(lc -> lc.getPatron().getName().equals(libraryCard.getPatron().getName()) &&
+                lc.getLibrary().getName().equals(libraryCard.getLibrary().getName()))) {
             throw new ResourceExistsException("LibraryCard for Patron: " + libraryCard.getPatron().getName() +
                     " already exists for Library with name: " + libraryCard.getLibrary().getName() + " !");
         }

@@ -16,9 +16,11 @@ public class PatronService {
 
     public void save(Patron patron) {
         List<Patron> patrons = patronRepository.findAll();
-        if (patrons.stream().filter(p->p.getName().equals(patron.getName())).findFirst().isPresent()) {
+
+        if (patrons.stream().anyMatch(p->p.getName().equals(patron.getName()))) {
             throw new ResourceExistsException("Patron with name: " + patron.getName() + " already exists!");
         }
+
         patronRepository.save(patron);
     }
 }

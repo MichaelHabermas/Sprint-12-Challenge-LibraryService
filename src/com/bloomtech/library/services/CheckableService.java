@@ -43,7 +43,7 @@ public class CheckableService {
 
     public void save(Checkable checkable) {
         List<Checkable> checkables = checkableRepository.findAll();
-        if (checkables.stream().filter(c->c.getIsbn().equals(checkable.getIsbn())).findFirst().isPresent()) {
+        if (checkables.stream().anyMatch(c->c.getIsbn().equals(checkable.getIsbn()))) {
             throw new ResourceExistsException("Checkable with isbn: " + checkable.getIsbn() + " already exists!");
         }
         checkableRepository.save(checkable);
